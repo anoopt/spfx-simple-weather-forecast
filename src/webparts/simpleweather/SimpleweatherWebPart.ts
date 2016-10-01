@@ -86,7 +86,7 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
                 PropertyPaneSlider('numberOfDays', {
                   label: strings.NumberOfDaysFieldLabel,
                   min: 1,
-                  max: 10,
+                  max: 5,
                   step: 1
                 })
               ]
