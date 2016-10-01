@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "name": "weather-webpart-simple-client-side-solution",
+    "id": "14c421f3-92a7-4c75-961c-62d042757bb4",
+    "version": "1.0.0.0"
+  },
+  "paths": {
+    "zippedPackage": "solution/weather-webpart-simple.spapp"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "../../../node_modules/@microsoft/sp-module-interfaces/lib/manifestSchemas/jsonSchemas/clientSideComponentManifestSchema.json",
+
+  "id": "2cd6a4dc-fa13-47d6-89e1-950e9df87549",
+  "componentType": "WebPart",
+  "version": "0.0.1",
+  "manifestVersion": 2,
+
+  "preconfiguredEntries": [{
+    "groupId": "2cd6a4dc-fa13-47d6-89e1-950e9df87549",
+    "group": { "default": "Under Development" },
+    "title": { "default": "simpleweather" },
+    "description": { "default": "simpleweather description" },
+    "officeFabricIconFontName": "Page",
+    "properties": {
+      "description": "Simple Weather",
+      "location": "London",
+      "numberOfDays": 1
+    }
+  }]
+}
