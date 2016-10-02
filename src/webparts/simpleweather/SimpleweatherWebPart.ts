@@ -15,6 +15,7 @@ import MockHttpClient from './MockHttpClient';
 
 import * as $ from 'jquery';
 require('simpleWeather');
+import * as pnp from 'sp-pnp-js';
 
 interface IPropertyPaneDropdownOption{
   key: string;
@@ -46,7 +47,11 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
   private renderContents(): void {
     this.container = $(`.${styles.simpleweather}`, this.domElement);
 
-    const location: string = this.properties.locationDropdown;
+    var location: string = this.properties.locationDropdown;
+
+    if(this.properties.locationDropdown === "None"){
+      location = this.properties.location;
+    }
 
     if (!location || location.length === 0) {
       this.container.html('<p>Please specify a location</p>');
@@ -63,8 +68,7 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
         var html: string = `<h2><i class="icon${weather.code}"></i> ${weather.temp}&deg;${weather.units.temp}</h2>`;
         html += `<ul><li><p>${weather.city}, ${weather.region}</p></li>`;
         html += `<li class="currently"><p>${weather.currently}</p></li></ul><br/>`;
-
-        html += `<ul>`
+        html += `<ul>`;
 
         for(var i=0;i<this.properties.numberOfDays;i++) {
 
@@ -103,15 +107,24 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
         });
     }
     else {
-      var url = this.context.pageContext.web.absoluteUrl + `/_api/web/lists/getbytitle('Location')/items`;
-      return this.fetchLocations(url).then((response) => {
-          return this.fetchOptionsFromResponse(response.value);
+      //var url = this.context.pageContext.web.absoluteUrl + `/_api/web/lists/getbytitle('Location')/items`;
+      //return this.fetchLocations(url).then((response) => {
+         // return this.fetchOptionsFromResponse(response.value);
+      //});
+      /***********************************/
+      /* OR using PnP JS*/
+      /***********************************/
+      return pnp.sp.web.lists.getByTitle('Location')
+      .items.select('Title')
+      .get().then((response) => {
+          return this.fetchOptionsFromResponse(response);
       });
     }
   }
 
   private fetchOptionsFromResponse(locations: ILocation[]): IPropertyPaneDropdownOption[]{
     var options: Array<IPropertyPaneDropdownOption> = new Array<IPropertyPaneDropdownOption>();
+    options.push( { key: "None", text: "Specify in the text box" });
     locations.forEach((location: ILocation) => {
               console.log("Found location with title = " + location.Title);
               options.push( { key: location.Title, text: location.Title });
@@ -155,6 +168,9 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
                   label: 'Select a location',
                   isDisabled: false,
                   options: this._locations
+                }),
+                 PropertyPaneTextField('location', {
+                  label: strings.LocationFieldLabel
                 }),
                 PropertyPaneSlider('numberOfDays', {
                   label: strings.NumberOfDaysFieldLabel,
