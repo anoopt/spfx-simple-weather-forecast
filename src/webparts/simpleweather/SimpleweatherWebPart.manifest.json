@@ -14,7 +14,6 @@
     "officeFabricIconFontName": "Page",
     "properties": {
       "description": "Simple Weather",
-      "location": "London",
       "numberOfDays": 1
     }
   }]

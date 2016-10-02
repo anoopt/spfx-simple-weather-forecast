@@ -3,15 +3,31 @@ import {
   IPropertyPaneSettings,
   IWebPartContext,
   PropertyPaneTextField,
-  PropertyPaneSlider
+  PropertyPaneSlider,
+  PropertyPaneDropdown
 } from '@microsoft/sp-client-preview';
 
+import { EnvironmentType } from '@microsoft/sp-client-base';
 import styles from './Simpleweather.module.scss';
 import * as strings from 'simpleweatherStrings';
 import { ISimpleweatherWebPartProps } from './ISimpleweatherWebPartProps';
+import MockHttpClient from './MockHttpClient';
 
 import * as $ from 'jquery';
 require('simpleWeather');
+
+interface IPropertyPaneDropdownOption{
+  key: string;
+  text: string;
+}
+
+export interface ILocation {
+  Title: string;
+}
+
+interface ILocations {
+  value: ILocation[];
+}
 
 export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimpleweatherWebPartProps> {
   private container: JQuery;
@@ -30,7 +46,7 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
   private renderContents(): void {
     this.container = $(`.${styles.simpleweather}`, this.domElement);
 
-    const location: string = this.properties.location;
+    const location: string = this.properties.locationDropdown;
 
     if (!location || location.length === 0) {
       this.container.html('<p>Please specify a location</p>');
@@ -69,6 +85,61 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
     });
   }
 
+  private _locations: IPropertyPaneDropdownOption[] = [];
+
+  public onInit<T>(): Promise<T> {
+    this.fetchOptions().then((data) => {
+        this._locations = data;
+    });
+
+    return Promise.resolve();
+  }
+
+  private fetchOptions(): Promise<IPropertyPaneDropdownOption[]> {
+
+    if (this.context.environment.type === EnvironmentType.Local) {
+        return this.fetchMockLocations().then((response) => {
+          return this.fetchOptionsFromResponse(response.value);
+        });
+    }
+    else {
+      var url = this.context.pageContext.web.absoluteUrl + `/_api/web/lists/getbytitle('Location')/items`;
+      return this.fetchLocations(url).then((response) => {
+          return this.fetchOptionsFromResponse(response.value);
+      });
+    }
+  }
+
+  private fetchOptionsFromResponse(locations: ILocation[]): IPropertyPaneDropdownOption[]{
+    var options: Array<IPropertyPaneDropdownOption> = new Array<IPropertyPaneDropdownOption>();
+    locations.forEach((location: ILocation) => {
+              console.log("Found location with title = " + location.Title);
+              options.push( { key: location.Title, text: location.Title });
+          });
+    return options;
+  }
+
+  private fetchLocations(url: string) : Promise<ILocations> {
+    return this.context.httpClient.get(url).then((response: Response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          console.log("WARNING - failed to hit URL " + url + ". Error = " + response.statusText);
+          return null;
+        }
+      });
+  }
+
+  private fetchMockLocations(): Promise<ILocations> {
+    return MockHttpClient.get(this.context.pageContext.web.absoluteUrl)
+            .then((data: ILocation[]) => {
+                 var locationData: ILocations = { value: data };
+                 return locationData;
+             }) as Promise<ILocations>;
+  }
+
+
+
   protected get propertyPaneSettings(): IPropertyPaneSettings {
     return {
       pages: [
@@ -80,8 +151,10 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('location', {
-                  label: strings.LocationFieldLabel
+                PropertyPaneDropdown('locationDropdown', {
+                  label: 'Select a location',
+                  isDisabled: false,
+                  options: this._locations
                 }),
                 PropertyPaneSlider('numberOfDays', {
                   label: strings.NumberOfDaysFieldLabel,

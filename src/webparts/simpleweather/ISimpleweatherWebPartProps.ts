@@ -1,5 +1,5 @@
 export interface ISimpleweatherWebPartProps {
   description: string;
-  location: string;
+  locationDropdown: string;
   numberOfDays: number;
 }
