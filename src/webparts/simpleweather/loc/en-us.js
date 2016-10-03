@@ -4,6 +4,6 @@ define([], function() {
     "BasicGroupName": "Basic properties",
     "DescriptionFieldLabel": "Description Field",
     "LocationFieldLabel":"Location",
-    "NumberOfDaysFieldLabel": "Forcast for number of days"
+    "NumberOfDaysFieldLabel": "Forecast for number of days"
   }
 });
