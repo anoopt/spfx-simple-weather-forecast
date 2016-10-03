@@ -9,11 +9,10 @@
   "preconfiguredEntries": [{
     "groupId": "2cd6a4dc-fa13-47d6-89e1-950e9df87549",
     "group": { "default": "Under Development" },
-    "title": { "default": "simpleweather" },
-    "description": { "default": "simpleweather description" },
-    "officeFabricIconFontName": "Page",
+    "title": { "default": "Simple Weather Extended" },
+    "description": { "default": "Simple Weather Extended" },
+    "officeFabricIconFontName": "PartlyCloudyDay",
     "properties": {
-      "description": "Simple Weather",
       "numberOfDays": 1
     }
   }]
