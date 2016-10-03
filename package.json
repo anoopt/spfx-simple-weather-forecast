@@ -8,7 +8,8 @@
   "dependencies": {
     "@microsoft/sp-client-base": "~0.3.0",
     "@microsoft/sp-client-preview": "~0.4.0",
-    "jquery": "^3.1.1"
+    "jquery": "^3.1.1",
+    "linq-es5": "^1.11.2"
   },
   "devDependencies": {
     "@microsoft/sp-build-web": "~0.6.0",

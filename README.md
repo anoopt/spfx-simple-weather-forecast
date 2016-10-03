@@ -1,6 +1,10 @@
-## weather-webpart-simple
-
-This is where you include your web part docs.
+## Weather webpart simple extended
+This webpart demonstrates functionality built on top of the webpart provided by Waldek - https://github.com/SharePoint/sp-dev-fx-webparts/tree/master/samples/jquery-cdn
+![alt tag](https://cloud.githubusercontent.com/assets/9694225/19053382/9e821f64-89b2-11e6-8054-d9c52518aa9c.gif)
+This webpart provides current weather and forecast upto 5 days of:
+- A pre-configured location from a list (Bangalore)
+- A location specified in the webpart property (New York)
+- Location picked form current user's user profile.
 
 ### Building the code
 
