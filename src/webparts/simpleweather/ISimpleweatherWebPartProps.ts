@@ -3,4 +3,5 @@ export interface ISimpleweatherWebPartProps {
   locationDropdown: string;
   location: string;
   numberOfDays: number;
+  locationOptionChoice: string;
 }

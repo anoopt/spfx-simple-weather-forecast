@@ -5,7 +5,8 @@ import {
   PropertyPaneTextField,
   PropertyPaneSlider,
   PropertyPaneDropdown,
-  PropertyPaneChoiceGroup
+  PropertyPaneChoiceGroup,
+  PropertyPaneToggle
 } from '@microsoft/sp-client-preview';
 
 import { EnvironmentType } from '@microsoft/sp-client-base';
@@ -53,15 +54,17 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
 
   private renderContents(): void {
     this.container = $(`.${styles.simpleweather}`, this.domElement);
-    var location: string = this.properties.locationDropdown;
+    var selectedOptionChoice: string = this.properties.locationOptionChoice;
+
+    var location: string = this.properties.location;
 
     //Get location from textbox
-    if(location === "None"){
+    if(selectedOptionChoice === "None"){
       location = this.properties.location;
       this.showWeather(location);
     }
     //Get location from user profile
-    else if(location === "UserLocation"){
+    else if(selectedOptionChoice === "UserLocation"){
       this.fetchLocationFromProfile().then((data) => {
         location = data.Value;
         if (!location || location.length === 0) {
@@ -73,6 +76,7 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
     }
     //Pick one of the locations from the dropdown
     else{
+      location = this.properties.locationDropdown;
       this.showWeather(location);
     }
   }
@@ -179,8 +183,8 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
 
   private fetchOptionsFromResponse(locations: ILocation[]): IPropertyPaneDropdownOption[]{
     var options: Array<IPropertyPaneDropdownOption> = new Array<IPropertyPaneDropdownOption>();
-    options.push( { key: "None", text: "Specify in the text box" });
-    options.push( { key: "UserLocation", text: "Choose user location" });
+    //options.push( { key: "None", text: "Specify in the text box" });
+    //options.push( { key: "UserLocation", text: "Choose user location" });
     locations.forEach((location: ILocation) => {
               console.log("Found location with title = " + location.Title);
               options.push( { key: location.Title, text: location.Title });
@@ -208,6 +212,27 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
   }
 
   protected get propertyPaneSettings(): IPropertyPaneSettings {
+
+    let templateProperty: any;
+    if (this.properties.locationOptionChoice == "None") {
+      templateProperty = PropertyPaneTextField('location', {
+                  label: strings.LocationFieldLabel
+                });
+    }
+    else if (this.properties.locationOptionChoice == "PreConfig"){
+      templateProperty = PropertyPaneDropdown('locationDropdown', {
+                  label: 'Select a location',
+                  isDisabled: false,
+                  options: this._locations
+                });
+    }
+    else {
+      templateProperty = PropertyPaneToggle('userLocationSelected', {
+                label: 'Pick location form user\'s profile',
+                disabled: true,
+                checked: true
+              });
+    }
     return {
       pages: [
         {
@@ -218,14 +243,15 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneDropdown('locationDropdown', {
-                  label: 'Select a location',
-                  isDisabled: false,
-                  options: this._locations
+                PropertyPaneChoiceGroup('locationOptionChoice', {
+                  label: 'Choose one of the following',
+                  options: [
+                    { key: 'None', text: 'Specify a location' },
+                    { key: 'UserLocation', text: 'Pick location from user\'s profile' },
+                    { key: 'PreConfig', text: 'Select one from pre-configured locations' }
+                  ]
                 }),
-                PropertyPaneTextField('location', {
-                  label: strings.LocationFieldLabel
-                }),
+                templateProperty,
                 PropertyPaneSlider('numberOfDays', {
                   label: strings.NumberOfDaysFieldLabel,
                   min: 1,

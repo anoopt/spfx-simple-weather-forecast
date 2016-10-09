@@ -13,7 +13,9 @@
     "description": { "default": "Simple Weather Extended" },
     "officeFabricIconFontName": "PartlyCloudyDay",
     "properties": {
-      "numberOfDays": 1
+      "numberOfDays": 1,
+      "locationOptionChoice": "None",
+      "location": "London"
     }
   }]
 }
