@@ -8,6 +8,7 @@ import {
   PropertyPaneChoiceGroup,
   PropertyPaneToggle
 } from '@microsoft/sp-client-preview';
+import { PropertyFieldColorPicker } from 'sp-client-custom-fields/lib/PropertyFieldColorPicker';
 
 import { EnvironmentType } from '@microsoft/sp-client-base';
 import styles from './Simpleweather.module.scss';
@@ -43,6 +44,7 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
 
   public constructor(context: IWebPartContext) {
     super(context);
+    this.onPropertyChange = this.onPropertyChange.bind(this);
   }
 
   public render(): void {
@@ -83,10 +85,11 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
 
   private showWeather(location: string): void{
     if (!location || location.length === 0) {
-      this.container.html(`<p class="ms-font-l ${styles.black}">Please specify a location</p>`);
+      this.container.html(`<p class="ms-font-l" style="color:${this.properties.fontColour}">Please specify a location</p>`);
       return;
     }
-
+    var topText: string = this.properties.webpartTopText.replace("%location%",location);
+    var html: string = `<p class="ms-font-l" style="color:${this.properties.fontColour}">${topText}</p>`;
     const webPart: SimpleweatherWebPart = this;
 
     ($ as any).simpleWeather({
@@ -94,20 +97,20 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
       woeid: '',
       unit: 'c',
       success: (weather: any): void => {
-        var html: string = `<h2><i class="icon${weather.code}"></i> ${weather.temp}&deg;${weather.units.temp}</h2>`;
-        html += `<ul><li><p>${weather.city}, ${weather.country}</p></li>`;
-        html += `<li class="currently"><p>${weather.currently}</p></li>`;
-        html += `<li><p>${weather.wind.direction} ${weather.wind.speed} ${weather.units.speed}</p></li></ul>`;
+        html += `<h2 style="color:${this.properties.fontColour};background:${this.properties.textBgColour}"><i class="icon${weather.code}" style="color:${this.properties.fontColour}"></i> ${weather.temp}&deg;${weather.units.temp}</h2>`;
+        html += `<ul>`; //<li style="background:${this.properties.textBgColour}"><p style="color:${this.properties.fontColour}">${weather.city}, ${weather.country}</p></li>
+        html += `<li class="currently" style="background:${this.properties.textBgColour}"><p style="color:${this.properties.fontColour}">${weather.currently}</p></li>`;
+        html += `<li style="background:${this.properties.textBgColour}"><p style="color:${this.properties.fontColour}">${weather.wind.direction} ${weather.wind.speed} ${weather.units.speed}</p></li></ul>`;
         html += `<ul>`;
-        html += `<p class="ms-font-l ${styles.black}">Forecast</p>`;
+        html += `<p class="ms-font-l ${styles.forecast}" style="color:${this.properties.fontColour}">Forecast</p>`;
         for(var i=0;i<this.properties.numberOfDays;i++) {
-          html += `<li><div class="ms-FacePile"><i class="icon${weather.forecast[i+1].code}"></i>
-                  <p>${weather.forecast[i+1].day}: ${weather.forecast[i].high}&deg;C </p></div></li>`;
+          html += `<li style="background:${this.properties.textBgColour}"><div class="ms-FacePile"><i class="icon${weather.forecast[i+1].code}" style="color:${this.properties.fontColour}"></i>
+                  <p style="color:${this.properties.fontColour}">${weather.forecast[i+1].day}: ${weather.forecast[i].high}&deg;C </p></div></li>`;
         }
         html += `</ul>`;
         webPart.container.html(html)
         .removeAttr('style')
-        .css('background','#e1e1e1');
+        .css('background',this.properties.backgroundColour);
       },
       error: (error: any): void => {
         webPart.container.html(`<p>${error.message}</p>`).removeAttr('style');
@@ -239,10 +242,14 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
           header: {
             description: strings.PropertyPaneDescription
           },
+          displayGroupsAsAccordion: true,
           groups: [
             {
               groupName: strings.BasicGroupName,
               groupFields: [
+                PropertyPaneTextField('webpartTopText', {
+                  label: "Top text"
+                }),
                 PropertyPaneChoiceGroup('locationOptionChoice', {
                   label: 'Choose one of the following',
                   options: [
@@ -257,6 +264,26 @@ export default class SimpleweatherWebPart extends BaseClientSideWebPart<ISimplew
                   min: 1,
                   max: 5,
                   step: 1
+                })
+              ]
+            },
+            {
+              groupName: "Colours",
+              groupFields: [
+                PropertyFieldColorPicker('textBgColour', {
+                  label: "Text background colour",
+                  initialColor: this.properties.textBgColour,
+                  onPropertyChange: this.onPropertyChange
+                }),
+                PropertyFieldColorPicker('fontColour', {
+                  label: "Font colour",
+                  initialColor: this.properties.fontColour,
+                  onPropertyChange: this.onPropertyChange
+                }),
+                PropertyFieldColorPicker('backgroundColour', {
+                  label: "Background colour",
+                  initialColor: this.properties.backgroundColour,
+                  onPropertyChange: this.onPropertyChange
                 })
               ]
             }

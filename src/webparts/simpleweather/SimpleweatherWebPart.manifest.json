@@ -15,7 +15,11 @@
     "properties": {
       "numberOfDays": 1,
       "locationOptionChoice": "None",
-      "location": "London"
+      "location": "London",
+      "textBgColour": "#000",
+      "fontColour": "#ffffff",
+      "backgroundColour": "#898686",
+      "webpartTopText": "Weather for %location%"
     }
   }]
 }
